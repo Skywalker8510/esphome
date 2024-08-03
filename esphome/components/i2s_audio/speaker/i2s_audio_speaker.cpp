@@ -33,6 +33,12 @@ void I2SAudioSpeaker::setup() {
   }
 }
 
+void I2SAudioSpeaker::flush() {
+  if (this->buffer_queue_ != nullptr) {
+    xStreamBufferReset(this->buffer_queue_);
+  }
+}
+
 void I2SAudioSpeaker::start() {
   if (this->is_failed()) {
     ESP_LOGE(TAG, "Cannot start audio, speaker failed to setup");
@@ -180,7 +186,7 @@ void I2SAudioSpeaker::player_task(void *params) {
   }
 }
 
-void I2SAudioSpeaker::stop() {
+void I2SAudioSpeaker::finish() {
   if (this->is_failed())
     return;
   if (this->state_ == speaker::STATE_STOPPED)
@@ -190,9 +196,15 @@ void I2SAudioSpeaker::stop() {
     return;
   }
   this->state_ = speaker::STATE_STOPPING;
+
   DataEvent data;
   data.stop = true;
-  xQueueSendToFront(this->buffer_queue_, &data, portMAX_DELAY);
+  xQueueSend(this->buffer_queue_, &data, portMAX_DELAY);
+}
+
+void I2SAudioSpeaker::stop() {
+  xQueueReset(this->buffer_queue_);
+  this->finish();
 }
 
 void I2SAudioSpeaker::watch_() {
@@ -233,6 +245,7 @@ void I2SAudioSpeaker::loop() {
   switch (this->state_) {
     case speaker::STATE_STARTING:
       this->start_();
+      [[fallthrough]];
     case speaker::STATE_RUNNING:
     case speaker::STATE_STOPPING:
       this->watch_();
