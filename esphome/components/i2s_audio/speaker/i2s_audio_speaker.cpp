@@ -35,7 +35,7 @@ void I2SAudioSpeaker::setup() {
 
 void I2SAudioSpeaker::flush() {
   if (this->buffer_queue_ != nullptr) {
-    xStreamBufferReset(this->buffer_queue_);
+    xQueueReset(this->buffer_queue_);
   }
 }
 
