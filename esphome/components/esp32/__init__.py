@@ -211,7 +211,7 @@ def _format_framework_arduino_version(ver: cv.Version) -> str:
     # List of package versions: https://api.registry.platformio.org/v3/packages/platformio/tool/framework-arduinoespressif32
     if ver <= cv.Version(1, 0, 3):
         return f"~2.{ver.major}{ver.minor:02d}{ver.patch:02d}.0"
-    return f"~3.{ver.major}{ver.minor:02d}{ver.patch:02d}.0"
+    return f"~3.20017.0"
 
 
 def _format_framework_espidf_version(ver: cv.Version) -> str:
